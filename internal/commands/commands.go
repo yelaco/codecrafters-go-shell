@@ -126,7 +126,7 @@ func Cd(ctx context.Context, args ...string) {
 		fmt.Println(err.Error())
 		return
 	}
-	if len(args) != 0 {
+	if len(args) != 0 && args[0] != "~" {
 		dir = args[0]
 	}
 	err = os.Chdir(dir)
