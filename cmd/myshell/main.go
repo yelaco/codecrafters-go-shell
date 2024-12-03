@@ -23,10 +23,7 @@ func main() {
 			panic(err)
 		}
 
-		command, err := commands.ParseCommand(strings.TrimSpace(line))
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-		command.Execute(context.Background())
+		commands.ParseCommand(strings.TrimSpace(line)).
+			Execute(context.Background())
 	}
 }

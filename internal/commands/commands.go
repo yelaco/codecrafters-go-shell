@@ -5,13 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
+	"os/exec"
 	"strconv"
 	"strings"
 )
 
 type Command struct {
-	cmd  string
+	name string
 	args []string
 	fn   Handler
 }
@@ -20,45 +20,54 @@ type Handler func(context.Context, ...string)
 
 var ErrCommandNotFound = errors.New("command not found")
 
-func ParseCommand(s string) (Command, error) {
+func ParseCommand(s string) Command {
 	words := strings.Split(s, " ")
 	if len(words) == 0 {
-		return Command{}, nil
+		return Command{}
 	}
 
-	fn, exist := GetHandlerIfExist(words[0])
-	if !exist {
-		return Command{}, fmt.Errorf("%s: %w", words[0], ErrCommandNotFound)
-	}
+	fn := GetHandler(words[0])
 
 	return Command{
-		cmd:  words[0],
+		name: words[0],
 		args: words[1:],
 		fn:   fn,
-	}, nil
+	}
 }
 
 func Exist(cmd string) bool {
-	_, exist := GetHandlerIfExist(cmd)
-	return exist
+	fn := GetHandler(cmd)
+	return fn != nil
 }
 
-func GetHandlerIfExist(cmd string) (Handler, bool) {
+func GetHandler(cmd string) Handler {
 	switch cmd {
 	case "exit":
-		return Exit, true
+		return Exit
 	case "echo":
-		return Echo, true
+		return Echo
 	case "type":
-		return Type, true
+		return Type
 	default:
-		return nil, false
+		return nil
 	}
 }
 
-func (c *Command) Execute(ctx context.Context) {
+func (c Command) Execute(ctx context.Context) {
 	if c.fn != nil {
 		c.fn(ctx, c.args...)
+	} else {
+		cmd := exec.CommandContext(ctx, c.name, c.args...)
+		output, err := cmd.Output()
+		if err != nil {
+			if errors.Is(err, exec.ErrNotFound) {
+				fmt.Printf("%s: command not found\n", c.name)
+			} else {
+				fmt.Println(err)
+			}
+			return
+		}
+		fmt.Print(string(output))
 	}
 }
 
@@ -89,15 +98,10 @@ func Type(ctx context.Context, args ...string) {
 	}
 
 	// check in $PATH
-	pathEnv := os.Getenv("PATH")
-	paths := strings.Split(pathEnv, string(os.PathListSeparator))
-	for _, path := range paths {
-		fullPath := filepath.Join(path, args[0])
-		_, err := os.Stat(fullPath)
-		if err == nil {
-			fmt.Printf("%s is %s\n", args[0], fullPath)
-			return
-		}
+	path, err := exec.LookPath(args[0])
+	if err == nil {
+		fmt.Printf("%s is %s\n", args[0], path)
+		return
 	}
 
 	fmt.Printf("%s: not found\n", args[0])
