@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -26,6 +27,6 @@ func main() {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		command.Execute()
+		command.Execute(context.Background())
 	}
 }
