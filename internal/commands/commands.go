@@ -50,6 +50,8 @@ func GetHandler(cmd string) Handler {
 		return Type
 	case "pwd":
 		return Pwd
+	case "cd":
+		return Cd
 	default:
 		return nil
 	}
@@ -116,4 +118,19 @@ func Pwd(ctx context.Context, args ...string) {
 		return
 	}
 	fmt.Println(pwd)
+}
+
+func Cd(ctx context.Context, args ...string) {
+	dir, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	if len(args) != 0 {
+		dir = args[0]
+	}
+	err = os.Chdir(dir)
+	if err != nil {
+		fmt.Printf("cd: %s: No such file or directory\n", dir)
+	}
 }
