@@ -48,6 +48,8 @@ func GetHandler(cmd string) Handler {
 		return Echo
 	case "type":
 		return Type
+	case "pwd":
+		return Pwd
 	default:
 		return nil
 	}
@@ -105,4 +107,13 @@ func Type(ctx context.Context, args ...string) {
 	}
 
 	fmt.Printf("%s: not found\n", args[0])
+}
+
+func Pwd(ctx context.Context, args ...string) {
+	pwd, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println(pwd)
 }
