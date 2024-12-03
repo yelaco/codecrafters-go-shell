@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/codecrafters-io/shell-starter-go/internal/commands"
 )
@@ -21,7 +22,7 @@ func main() {
 			panic(err)
 		}
 
-		command, err := commands.ParseCommand(line)
+		command, err := commands.ParseCommand(strings.TrimSpace(line))
 		if err != nil {
 			fmt.Println(err.Error())
 		}

@@ -21,9 +21,6 @@ func ParseCommand(s string) (Command, error) {
 	if len(words) == 0 {
 		return Command{}, nil
 	}
-	for i := range len(words) {
-		words[i] = strings.TrimSpace(words[i])
-	}
 
 	fn, exist := GetHandlerIfExist(words[0])
 	if !exist {
@@ -41,6 +38,8 @@ func GetHandlerIfExist(cmd string) (func(...string), bool) {
 	switch cmd {
 	case "exit":
 		return Exit, true
+	case "echo":
+		return Echo, true
 	default:
 		return nil, false
 	}
@@ -62,4 +61,8 @@ func Exit(args ...string) {
 		return
 	}
 	os.Exit(code)
+}
+
+func Echo(args ...string) {
+	fmt.Println(strings.Join(args, " "))
 }
