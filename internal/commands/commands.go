@@ -2,6 +2,7 @@ package commands
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -10,17 +11,20 @@ type Command struct {
 	args []string
 }
 
-var ErrCommandNotFound = errors.New("nonexistent: not found")
+var ErrCommandNotFound = errors.New("command not found")
 
 func ParseCommand(s string) (Command, error) {
-	words := strings.Split(s, "")
+	words := strings.Split(s, " ")
 	if len(words) == 0 {
 		return Command{}, nil
+	}
+	for i := range len(words) {
+		words[i] = strings.TrimSpace(words[i])
 	}
 
 	// Check if command exists
 	if !Exist(words[0]) {
-		return Command{}, ErrCommandNotFound
+		return Command{}, fmt.Errorf("%s: %w", words[0], ErrCommandNotFound)
 	}
 
 	return Command{

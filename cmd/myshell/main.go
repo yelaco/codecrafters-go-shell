@@ -12,11 +12,10 @@ import (
 var _ = fmt.Fprint
 
 func main() {
-	fmt.Fprint(os.Stdout, "$ ")
-
 	// Wait for user input
 	rd := bufio.NewReader(os.Stdin)
 	for {
+		fmt.Fprint(os.Stdout, "$ ")
 		line, err := rd.ReadString('\n')
 		if err != nil {
 			panic(err)
@@ -27,7 +26,5 @@ func main() {
 			fmt.Println(err.Error())
 		}
 		command.Execute()
-
-		fmt.Println()
 	}
 }
